@@ -1,3 +1,4 @@
+from random import *
 import pygame # импортируем библеотеку ыыыыы
 class Food(): # создание класса
     def __init__(self, a, c, d): # создание конструктора в нем создаются свойства , вызывается при создании объекта
@@ -15,20 +16,28 @@ class Food(): # создание класса
 
     def move_food(self):
         self.rect.y += 5
-        if self.rect.y == 700:
+        if self.rect.y > 700:
             self.rect.y = 0
 
     def draw_image(self):  #метод отрисовки картинки
         screen.blit(self.image, (self.rect.x, self.rect.y))
 
 
+
+q = randint(-1000 , 0)
+t = randint(-1000 , 0)
+h = randint(-1000 , 0)
+g = randint(-1000 , 0)
+f = randint(-1000 , 0 )
+
 fon = Food('kitchen.jpg', 0, 0 ) #создание объекта класса food
-f1 = Food('pelmen.png', 50, 0 )#создание объекта класса food
-f2 = Food('cheesburger.png', 300, 0 )#создание объекта класса food
-f3 = Food('pelmen.png', 500, 0 )#создание объекта класса food
-f4 = Food('gummy bear.png', 700, 0 )#создание объекта класса food
-f5 = Food('pelmen.png', 900, 0 )#создание объекта класса food
+f1 = Food('pelmen.png', 50,  t)#создание объекта класса food
+f2 = Food('cheesburger.png', 300, q )#создание объекта класса food
+f3 = Food('pelmen.png', 500, g )#создание объекта класса food
+f4 = Food('gummy bear.png', 700, f )#создние объекта класса food
 plate = Food('plate.png', 380, 600)#создание объекта класса food
+
+
 
 pygame.init() #обязательная программа
 window_size=(1000 , 700) #размеры окна
@@ -44,7 +53,6 @@ while True:# игровой цикл
     f2.draw_image()#применение метода отрисовки картинки
     f3.draw_image()#применение метода отрисовки картинки
     f4.draw_image()#применение метода отрисовки картинки
-    f5.draw_image()#применение метода отрисовки картинки
     plate.draw_image()#применение метода отрисовки картинки
     clock.tick(65)# фпс
     for event in pygame.event.get(): # ходим по событиям
@@ -54,6 +62,7 @@ while True:# игровой цикл
     f2.move_food()#применение метода отрисовки картинки
     f3.move_food()#применение метода отрисовки картинки
     f4.move_food()#применение метода отрисовки картинки
-    f5.move_food()#применение метода отрисовки картинки
     pygame.display.update() # обнова экрана
+
+
 
