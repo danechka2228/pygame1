@@ -1,30 +1,24 @@
-from random import randint
 import random
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel
 def klick():
-    answer = random.randint(1,67)
-button = QPushButton()
-
+    k = random.randint(0,4)
+    spisok = ['0' ,'1' ,'2' ,'3' ,'4']
+    answer.setText(spisok[k])
 
 app = QApplication([])
 main_win = QWidget()
 main_win.resize(400, 200)
 main_win.setWindowTitle('Magics otveti')
 main_win.show()
+answer = QLabel('Число')
+button = QPushButton('тык')
 
 v_line = QVBoxLayout()
-v_line.addWidget(
-button , aligment = Qt.AlignCenter
-)
-v_line.addWidget(
- , aligment = Qt.AlignCenter
-)
-
-
-
+v_line.addWidget(button, alignment = Qt.AlignCenter)
+v_line.addWidget(answer, alignment = Qt.AlignCenter)
+main_win.setLayout(v_line)
 
 button.clicked.connect(klick)
 
-main_win.setLayout(v_line)
 app.exec_()
