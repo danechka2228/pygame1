@@ -1,24 +1,40 @@
 import random
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel
-def klick():
-    k = random.randint(0,4)
-    spisok = ['0' ,'1' ,'2' ,'3' ,'4']
-    answer.setText(spisok[k])
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit
+
+
+
+
+
+
 
 app = QApplication([])
 main_win = QWidget()
-main_win.resize(400, 200)
-main_win.setWindowTitle('Magics otveti')
+main_win.resize(700, 400)
+main_win.setWindowTitle('Список дел')
 main_win.show()
-answer = QLabel('Число')
-button = QPushButton('тык')
 
-v_line = QVBoxLayout()
-v_line.addWidget(button, alignment = Qt.AlignCenter)
-v_line.addWidget(answer, alignment = Qt.AlignCenter)
-main_win.setLayout(v_line)
+button1 = QPushButton('удалить все')
+button2 = QPushButton('удалить все')
+button6 = QPushButton('удалить выбр. заметку')
+button7 = QPushButton('удалить выбр. заметку')
+button3 = QPushButton('Переместить в (сделанное)')
+button4 = QPushButton('Переместить в (список дел)')
+button5 = QPushButton('добавить')
+New_task_text = QLineEdit()
+spisok1 = QLabel('сделано')
+spisok2 = QLabel('cписок дел')
+add = QLabel('новое дело')
+listLeft = QListWidget()
+listRight = QListWidget()
 
-button.clicked.connect(klick)
 
+
+
+v_line1 = QVBoxLayout()
+v_line2 = QVBoxLayout()
+v_line3 = QVBoxLayout()
+main_line = QHBoxLayout()
+h_line1 = QHBoxLayout()
+h_line2 = QHBoxLayout()
 app.exec_()
