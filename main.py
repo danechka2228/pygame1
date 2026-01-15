@@ -1,93 +1,70 @@
-from random import *
-import pygame # импортируем библеотеку ыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыы
-class Demon(): # создание класса
-    def __init__(self, a, c, d): # создание конструктора в нем создаются свойства , вызывается при создании объекта
-        self.image = pygame.image.load(a)# загружаем картинку, это свойство
-        self.rect = self.image.get_rect()# получение прямоугольника от картинки , тоже свойство
-        self.rect.x = c #свойство объекта, координата x
-        self.rect.y = d #координата у , свойство объекта
-
-    def move_slayer(self): #
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_a] == True:
-            self.rect.x -= 9.7  # движение объекта
-        if keys[pygame.K_d]:
-            self.rect.x += 9.7  # движение объекта
-        if keys[pygame.K_w]:
-            self.rect.y -= 8.4  # движение объекта
-        if keys[pygame.K_s]:
-            self.rect.y += 8.4  # движение объекта
-    def move_food(self):
-        self.rect.y += 3.6
-        if self.rect.y > 900:
-            self.rect.y = -100
-
-    def draw_image(self):  #метод отрисовки картинки
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+import random
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QListWidget)
 
 
 
 
 
-q = randint(-1000 , 0)
-t = randint(-1000 , 0)
-h = randint(-1000 , 0)
-g = randint(-1000 , 0)
-f = randint(-1000 , 0)
-j = randint(-1000 , 0)
-k = randint(-1000 , 0)
-u = randint(-1000 , 0)
-
-fon = Demon('ad1 (1).jpg', 0, 0 ) #создание объекта класса food
-f1 = Demon('demon1 (2).png', 50,  t)#создание объекта класса food
-f2 = Demon('demon2.png', 350, q )#создание объекта класса food
-f3 = Demon('demon3 (1).png', 660, g )#создание объекта класса food
-f4 = Demon('demon2.png', 750, f )#создние объекта класса food
-f5 = Demon('demon3 (1).png', 880, u )#создние объекта класса food
-f6 = Demon('demon2.png', 1000, k )#создние объекта класса food
-f7 = Demon('demon2.png', 1300, j )#создние объекта класса food
-f8 = Demon('demon1 (2).png', 1360, h )#создние объекта класса food
-slayer = Demon('doom_slayer.png', 380, 600)#создание объекта класса food
-demon_list = [f1 , f2 , f3 , f4, f5 ,f6 , f7 , f8 ]
 
 
 
 
-pygame.init() #обязательная функция
-window_size=(1840 , 910) #размеры окна
-screen=pygame.display.set_mode(window_size) #создаем экран с размерами
-pygame.display.set_caption("Doom: The Dark Ages") #название игры
-clock = pygame.time.Clock()
-bullets = []
 
-while True:# игровой цикл
+app = QApplication([])
+main_win = QWidget()
+main_win.resize(700, 400)
+main_win.setWindowTitle('Список дел')
+main_win.show()
 
-    fon.draw_image()#применение метода отрисовки картинки
-    slayer.move_slayer()#применение метода отрисовки картинки
-    slayer.draw_image()#применение метода отрисовки картинки
-    clock.tick(67)# фпс
-    for i in bullets:
-        i.draw_image()
-        i.rect.y -= 14
-        for j in demon_list:
-            if i.rect.colliderect(j.rect):
-                demon_list.remove(j)
-                bullets.remove(i)
-    for i in demon_list:
-        i.draw_image()
-        i.move_food()
+button1 = QPushButton('удалить все')
+button2 = QPushButton('удалить все')
+button6 = QPushButton('удалить выбр. заметку')
+button7 = QPushButton('удалить выбр. заметку')
+button3 = QPushButton('Переместить в (сделанное)')
+button4 = QPushButton('Переместить в (список дел)')
+button5 = QPushButton('добавить')
+New_task_text = QLineEdit()
+spisok1 = QLabel('сделано')
+spisok2 = QLabel('cписок дел')
+add = QLabel('новое дело')
+listLeft = QListWidget()
+listRight = QListWidget()
 
-    if demon_list == [ ]:
-        pygame.exit()
-    for event in pygame.event.get(): # ходим по событиям
-        if event.type == pygame.QUIT: # нажали на крестик
-            pygame.QUIT() # вышли из игры
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            bullet = Demon("fire_boll.png", slayer.rect.x,slayer.rect.y)
-            bullets.append(bullet)
-    pygame.display.update() # обнова экрана
+v_line1 = QVBoxLayout()
+v_line2 = QVBoxLayout()
+v_line3 = QVBoxLayout()
+main_line = QHBoxLayout()
+h_line1 = QHBoxLayout()
+h_line2 = QHBoxLayout()
 
-
+# Левый столбец
+v_line1.addWidget(spisok2)
+v_line1.addWidget(listLeft)
+v_line1.addWidget(button1)
+v_line1.addWidget(button6)
 
 
+v_line2.addWidget(spisok1)
+v_line2.addWidget(listRight)
+v_line2.addWidget(button2)
+v_line2.addWidget(button7)
+
+
+h_line1.addWidget(add)
+h_line1.addWidget(New_task_text)
+h_line1.addWidget(button5)
+h_line2.addWidget(button3)
+h_line2.addWidget(button4)
+
+v_line3.addLayout(h_line1)
+v_line3.addLayout(h_line2)
+
+
+main_line.addLayout(v_line1)
+main_line.addLayout(v_line3)  # ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad
+main_line.addLayout(v_line2)
+
+main_win.setLayout(main_line)
+app.exec_()
 
