@@ -2,18 +2,39 @@ import random
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QListWidget)
 
+def addtask1():
+    b = a.text()
+    listLeft.addItem(b)
+
+def addtask2():
+    b = a.text()
+    listRight.addItem(b)
 
 
+def clear_all1():
+    listLeft.clear()
 
+def clear_all2():
+    listRight.clear()
 
+def dci():
+    l = listLeft.currentRow()
+    listLeft.takeItem(l)
 
+def dci2():
+    l = listLeft.currentRow()
+    listLeft.takeItem(l)
+
+def move_to_right():
+   g =  listLeft.currentRow()
+   listRight.addItem(g)
 
 
 
 
 app = QApplication([])
 main_win = QWidget()
-main_win.resize(700, 400)
+main_win.resize(900, 600)
 main_win.setWindowTitle('Список дел')
 main_win.show()
 
@@ -21,15 +42,16 @@ button1 = QPushButton('удалить все')
 button2 = QPushButton('удалить все')
 button6 = QPushButton('удалить выбр. заметку')
 button7 = QPushButton('удалить выбр. заметку')
-button3 = QPushButton('Переместить в (сделанное)')
-button4 = QPushButton('Переместить в (список дел)')
-button5 = QPushButton('добавить')
-New_task_text = QLineEdit()
+button3 = QPushButton('Поместить в сделанное')
+button4 = QPushButton('Поместить в список дел')
+
+a = QLineEdit()
 spisok1 = QLabel('сделано')
 spisok2 = QLabel('cписок дел')
-add = QLabel('новое дело')
+add = QLabel('новое дело:')
 listLeft = QListWidget()
 listRight = QListWidget()
+add1 = QPushButton('Добавить')
 
 v_line1 = QVBoxLayout()
 v_line2 = QVBoxLayout()
@@ -37,25 +59,29 @@ v_line3 = QVBoxLayout()
 main_line = QHBoxLayout()
 h_line1 = QHBoxLayout()
 h_line2 = QHBoxLayout()
-
-# Левый столбец
+h_line3 = QHBoxLayout()
+# ЛC
 v_line1.addWidget(spisok2)
 v_line1.addWidget(listLeft)
-v_line1.addWidget(button1)
-v_line1.addWidget(button6)
-
+h_line3.addWidget(button1)
+h_line3.addWidget(button6)
+v_line1.addLayout(h_line3)
+v_line1.addWidget(add)
+v_line1.addWidget(a)
+v_line1.addWidget(add1)
 
 v_line2.addWidget(spisok1)
 v_line2.addWidget(listRight)
-v_line2.addWidget(button2)
-v_line2.addWidget(button7)
+h_line2.addWidget(button2)
+h_line2.addWidget(button7)
+v_line2.addLayout(h_line2)
 
 
-h_line1.addWidget(add)
-h_line1.addWidget(New_task_text)
-h_line1.addWidget(button5)
-h_line2.addWidget(button3)
-h_line2.addWidget(button4)
+#h_line1.addWidget(add)
+h_line1.addWidget(a)
+
+v_line3.addWidget(button3)
+v_line3.addWidget(button4)
 
 v_line3.addLayout(h_line1)
 v_line3.addLayout(h_line2)
@@ -66,4 +92,10 @@ main_line.addLayout(v_line3)  # ddblad ddblad ddblad ddblad ddblad ddblad ddblad
 main_line.addLayout(v_line2)
 
 main_win.setLayout(main_line)
+add1.clicked.connect(addtask1)
+button1.clicked.connect(clear_all1)
+button2.clicked.connect(clear_all2)
+button6.clicked.connect(dci)
+button7.clicked.connect(dci2)
+button3.clicked.connect(move_to_right)
 app.exec_()
