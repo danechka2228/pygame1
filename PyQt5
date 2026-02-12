@@ -1,4 +1,4 @@
-import random
+import sqlite3
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QListWidget)
 
@@ -15,6 +15,22 @@ def addtask2():
         a.clear()
 
 
+def get_data():
+    connection = sqlite3.connect('dela.db')
+    cursor = connection.cursor()
+    cursor('''
+    CREATE TABLE IF NOT EXISTS my_list (
+    name TEXT,
+    done INTEGER)
+    ''')
+    selected = cursor.execute("SELECT name, done FROM my_list")
+    print(cursor.fetchall())
+    for pair in selected:
+        if pair == 0:
+            listLeft.addItem(pair[0])
+        else:
+            listRight.addItem(pair[0])
+    connection.close()
 def clear_all1():
     listLeft.clear()
 
@@ -109,4 +125,5 @@ button6.clicked.connect(dci)
 button7.clicked.connect(dci2)
 button3.clicked.connect(move_to_right)
 button4.clicked.connect(move_to_left)
+
 app.exec_()
