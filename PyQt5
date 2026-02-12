@@ -4,11 +4,15 @@ from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QL
 
 def addtask1():
     b = a.text()
-    listLeft.addItem(b)
+    if b:
+        listLeft.addItem(b)
+        a.clear()
 
 def addtask2():
     b = a.text()
-    listRight.addItem(b)
+    if b:
+        listRight.addItem(b)
+        a.clear()
 
 
 def clear_all1():
@@ -21,14 +25,20 @@ def dci():
     l = listLeft.currentRow()
     listLeft.takeItem(l)
 
+
 def dci2():
-    l = listLeft.currentRow()
-    listLeft.takeItem(l)
+    l = listRight.currentRow()
+    listRight.takeItem(l)
 
 def move_to_right():
-   g =  listLeft.currentRow()
-   listRight.addItem(g)
+   n = listLeft.currentRow()
+   item = listLeft.takeItem(n)
+   listRight.addItem(item)
 
+def move_to_left():
+   c = listRight.currentRow()
+   item = listRight.takeItem(c)
+   listLeft.addItem(item)
 
 
 
@@ -77,7 +87,7 @@ h_line2.addWidget(button7)
 v_line2.addLayout(h_line2)
 
 
-#h_line1.addWidget(add)
+h_line1.addWidget(add)
 h_line1.addWidget(a)
 
 v_line3.addWidget(button3)
@@ -98,4 +108,5 @@ button2.clicked.connect(clear_all2)
 button6.clicked.connect(dci)
 button7.clicked.connect(dci2)
 button3.clicked.connect(move_to_right)
+button4.clicked.connect(move_to_left)
 app.exec_()
