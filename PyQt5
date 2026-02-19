@@ -2,6 +2,12 @@ import sqlite3
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QListWidget)
 
+
+
+
+
+
+
 def addtask1():
     b = a.text()
     if b:
@@ -15,22 +21,24 @@ def addtask2():
         a.clear()
 
 
-def get_data():
-    connection = sqlite3.connect('dela.db')
-    cursor = connection.cursor()
+def create_db():
+    connection = sqlite3.connect('dela.db')#подключение файла бд
+    cursor = connection.cursor()#создание обьекта курсора
     cursor('''
     CREATE TABLE IF NOT EXISTS my_list (
     name TEXT,
     done INTEGER)
-    ''')
-    selected = cursor.execute("SELECT name, done FROM my_list")
+    ''')# создает новую таблицу my_list с полями нейм и доне если она не была создана ранее
+    a = cursor.execute("SELECT name, done FROM my_list")#получение данных из бд
+    # а - переменная, где хранятся пары значений название дела и индекс
     print(cursor.fetchall())
-    for pair in selected:
-        if pair == 0:
-            listLeft.addItem(pair[0])
+    for pair in a: # цикл проходится по последовасти
+        if pair[1] == 0: #если индекс заметки равен 0 (проверяем второй элемент из пары)
+            listLeft.addItem(pair[0])# добавление заметки в левый список(добавляем первый элемент из пары, то есть название дела)
         else:
-            listRight.addItem(pair[0])
+            listRight.addItem(pair[0])# добавление заметки в правый список(добавляем первый элемент из пары, то есть название дела)
     connection.close()
+
 def clear_all1():
     listLeft.clear()
 
@@ -108,6 +116,7 @@ h_line1.addWidget(a)
 
 v_line3.addWidget(button3)
 v_line3.addWidget(button4)
+
 
 v_line3.addLayout(h_line1)
 v_line3.addLayout(h_line2)
