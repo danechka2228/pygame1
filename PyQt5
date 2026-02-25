@@ -1,138 +1,139 @@
-import sqlite3
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, QLabel, QHBoxLayout, QLineEdit, QListWidget)
-
-
-
-
-
+import sqlite3  # импорт sqlite3
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout,QLabel, QHBoxLayout, QLineEdit, QListWidget) # импорт виджетов
 
 
 def addtask1():
     b = a.text()
+    add_ele(b)
     if b:
         listLeft.addItem(b)
-        a.clear()
+        a.clear()  # добавляем задачу в левый список и БД
+
 
 def addtask2():
     b = a.text()
     if b:
         listRight.addItem(b)
-        a.clear()
+        a.clear()  # добавляем задачу в правый список
 
-
+ё
 def create_db():
-    connection = sqlite3.connect('dela.db')#подключение файла бд
-    cursor = connection.cursor()#создание обьекта курсора
-    cursor('''
-    CREATE TABLE IF NOT EXISTS my_list (
-    name TEXT,
-    done INTEGER)
-    ''')# создает новую таблицу my_list с полями нейм и доне если она не была создана ранее
-    a = cursor.execute("SELECT name, done FROM my_list")#получение данных из бд
-    # а - переменная, где хранятся пары значений название дела и индекс
+    connection = sqlite3.connect('dela.db')  # создаем файл
+    cursor = connection.cursor()  # будт применяться все методы связанные с изменением БД
+    cursor.execute(
+        '''CREATE TABLE IF NOT EXISTS my_list(
+        name TEXT,
+        done INTEGER)'''
+    )
+    a = cursor.execute("SELECT name, done FROM my_list")
     print(cursor.fetchall())
-    for pair in a: # цикл проходится по последовасти
-        if pair[1] == 0: #если индекс заметки равен 0 (проверяем второй элемент из пары)
-            listLeft.addItem(pair[0])# добавление заметки в левый список(добавляем первый элемент из пары, то есть название дела)
+    for pair in a:
+        if pair[1] == 0:
+            listLeft.addItem(pair[0])
         else:
-            listRight.addItem(pair[0])# добавление заметки в правый список(добавляем первый элемент из пары, то есть название дела)
-    connection.close()
+            listRight.addItem(pair[0])
+    connection.commit() # сохраняем БД
+    connection.close()  # загружаем данные и закрываем
+
+
+def add_ele(text):
+    connection = sqlite3.connect('dela.db')
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO my_list(name, done) VALUES(?, ?)", (text, 0))
+    connection.commit()
+    connection.close()  # добавляем элемент в БД
+
 
 def clear_all1():
-    listLeft.clear()
+    listLeft.clear()  # очищаем левый список
+
 
 def clear_all2():
-    listRight.clear()
+    listRight.clear()  # очищаем правый список
+
 
 def dci():
     l = listLeft.currentRow()
-    listLeft.takeItem(l)
+    listLeft.takeItem(l)  # удаляем из левого списка
 
 
 def dci2():
     l = listRight.currentRow()
-    listRight.takeItem(l)
+    listRight.takeItem(l)  # удаляем из правого списка
+
 
 def move_to_right():
-   n = listLeft.currentRow()
-   item = listLeft.takeItem(n)
-   listRight.addItem(item)
+    n = listLeft.currentRow()
+    item = listLeft.takeItem(n)
+    listRight.addItem(item)  # перемещаем задачу в правый список
+
 
 def move_to_left():
-   c = listRight.currentRow()
-   item = listRight.takeItem(c)
-   listLeft.addItem(item)
+    c = listRight.currentRow()
+    item = listRight.takeItem(c)
+    listLeft.addItem(item)  # перемещаем задачу в левый список
 
 
+app = QApplication([])  # создаем приложение
+main_win = QWidget()  # создаем главное окно
+main_win.resize(900, 600)  # устанавливаем размер окна
+main_win.setWindowTitle('Список дел')  # устанавливаем заголовок окна
+main_win.show()  # показываем окно
 
-app = QApplication([])
-main_win = QWidget()
-main_win.resize(900, 600)
-main_win.setWindowTitle('Список дел')
-main_win.show()
+button1 = QPushButton('удалить все')  # кнопка очистки левого списка
+button2 = QPushButton('удалить все')  # кнопка очистки правого списка
+button6 = QPushButton('удалить выбр. заметку')  # кнопка удаления из левого списка
+button7 = QPushButton('удалить выбр. заметку')  # кнопка удаления из правого списка
+button3 = QPushButton('Поместить в сделанное')  # кнопка перемещения задачи вправо
+button4 = QPushButton('Поместить в список дел')  # кнопка перемещения задачи влево
 
-button1 = QPushButton('удалить все')
-button2 = QPushButton('удалить все')
-button6 = QPushButton('удалить выбр. заметку')
-button7 = QPushButton('удалить выбр. заметку')
-button3 = QPushButton('Поместить в сделанное')
-button4 = QPushButton('Поместить в список дел')
+a = QLineEdit()  # поле ввода текста
+spisok1 = QLabel('сделано')  # подпись правого списка
+spisok2 = QLabel('cписок дел')  # подпись левого списка
+add = QLabel('новое дело:')  # подпись поля ввода
+listLeft = QListWidget()  # левый список (дела)
+listRight = QListWidget()  # правый список (сделано)
+add1 = QPushButton('Добавить')  # кнопка добавления задачи
 
-a = QLineEdit()
-spisok1 = QLabel('сделано')
-spisok2 = QLabel('cписок дел')
-add = QLabel('новое дело:')
-listLeft = QListWidget()
-listRight = QListWidget()
-add1 = QPushButton('Добавить')
+v_line1 = QVBoxLayout()  # левая вертикальная линия
+v_line2 = QVBoxLayout()  # правая вертикальная линия
+v_line3 = QVBoxLayout()  # центральная вертикальная линия
+main_line = QHBoxLayout()  # главная горизонтальная линия
+h_line1 = QHBoxLayout()  # горизонтальная линия 1
+h_line2 = QHBoxLayout()  # горизонтальная линия 2
+h_line3 = QHBoxLayout()  # горизонтальная линия 3
 
-v_line1 = QVBoxLayout()
-v_line2 = QVBoxLayout()
-v_line3 = QVBoxLayout()
-main_line = QHBoxLayout()
-h_line1 = QHBoxLayout()
-h_line2 = QHBoxLayout()
-h_line3 = QHBoxLayout()
-# ЛC
-v_line1.addWidget(spisok2)
-v_line1.addWidget(listLeft)
-h_line3.addWidget(button1)
-h_line3.addWidget(button6)
-v_line1.addLayout(h_line3)
-v_line1.addWidget(add)
-v_line1.addWidget(a)
-v_line1.addWidget(add1)
+v_line1.addWidget(spisok2)  # добавляем подпись левого списка в левую вертикальную линию
+v_line1.addWidget(listLeft)  # добавляем левый список в левую вертикальную линию
+h_line3.addWidget(button1)  # добавляем кнопку очистки левого в горизонтальную линию 3
+h_line3.addWidget(button6)  # добавляем кнопку удаления левого в горизонтальную линию 3
+v_line1.addLayout(h_line3)  # добавляем горизонтальную линию 3 в левую вертикальную линию
+v_line1.addWidget(add)  # добавляем подпись ввода в левую вертикальную линию
+v_line1.addWidget(a)  # добавляем поле ввода в левую вертикальную линию
+v_line1.addWidget(add1)  # добавляем кнопку добавить в левую вертикальную линию
 
-v_line2.addWidget(spisok1)
-v_line2.addWidget(listRight)
-h_line2.addWidget(button2)
-h_line2.addWidget(button7)
-v_line2.addLayout(h_line2)
+v_line2.addWidget(spisok1)  # добавляем подпись правого списка в правую вертикальную линию
+v_line2.addWidget(listRight)  # добавляем правый список в правую вертикальную линию
+h_line2.addWidget(button2)  # добавляем кнопку очистки правого в горизонтальную линию 2
+h_line2.addWidget(button7)  # добавляем кнопку удаления правого в горизонтальную линию 2
+v_line2.addLayout(h_line2)  # добавляем горизонтальную линию 2 в правую вертикальную линию
 
+v_line3.addWidget(button3)  # добавляем кнопку перемещения вправо в центральную вертикальную линию
+v_line3.addWidget(button4)  # добавляем кнопку перемещения влево в центральную вертикальную линию
 
-h_line1.addWidget(add)
-h_line1.addWidget(a)
+main_line.addLayout(v_line1)  # добавляем левую вертикальную линию в главную горизонтальную линию
+main_line.addLayout(v_line3)  # добавляем центральную вертикальную линию в главную горизонтальную линию
+main_line.addLayout(v_line2)  # добавляем правую вертикальную линию в главную горизонтальную линию
 
-v_line3.addWidget(button3)
-v_line3.addWidget(button4)
+main_win.setLayout(main_line)  # устанавливаем главную горизонтальную линию как линию окна
 
+add1.clicked.connect(addtask1)  # подключаем кнопку добавить
+button1.clicked.connect(clear_all1)  # подключаем очистку левого списка
+button2.clicked.connect(clear_all2)  # подключаем очистку правого списка
+button6.clicked.connect(dci)  # подключаем удаление из левого списка
+button7.clicked.connect(dci2)  # подключаем удаление из правого списка
+button3.clicked.connect(move_to_right)  # подключаем перемещение задачи вправо
+button4.clicked.connect(move_to_left)  # подключаем перемещение задачи влево
 
-v_line3.addLayout(h_line1)
-v_line3.addLayout(h_line2)
-
-
-main_line.addLayout(v_line1)
-main_line.addLayout(v_line3)  # ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad ddblad
-main_line.addLayout(v_line2)
-
-main_win.setLayout(main_line)
-add1.clicked.connect(addtask1)
-button1.clicked.connect(clear_all1)
-button2.clicked.connect(clear_all2)
-button6.clicked.connect(dci)
-button7.clicked.connect(dci2)
-button3.clicked.connect(move_to_right)
-button4.clicked.connect(move_to_left)
-
-app.exec_()
+create_db()  # создаем БД и загружаем данные при запуске
+app.exec_()  # оставлять приложение активным
