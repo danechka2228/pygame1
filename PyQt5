@@ -25,7 +25,7 @@ def addtask2():
     if b:
         if a != "":
             listRight.addItem(b)
-        add_ele(b)  # вызов функции
+        delete_from_BD(b)
         a.clear()
 
 
@@ -52,6 +52,12 @@ def add_ele(text): #создание функции
     connection.commit()
     connection.close()
 
+def delete_from_BD(a, b): # параметры
+    connection = sqlite3.connect('dela.db')
+    cursor = connection.cursor()
+    cursor.execute("DELETE FROM my_list WHERE name=? AND done=?", (a, b))
+    connection.commit()
+    connection.close()
 
 
 def clear_all1():
@@ -73,7 +79,7 @@ def clear_all2():
         msg.exec_()
 def dci():
     l = listLeft.currentRow()
-    listLeft.takeItem(l)
+    delete_from_BD( listLeft.takeItem(l).text(), [0])
     if l:
         msg = QMessageBox()
         msg.setWindowTitle("Ошибка")
@@ -84,7 +90,7 @@ def dci():
 
 def dci2():
     l = listRight.currentRow()
-    listRight.takeItem(l)
+    delete_from_BD( listRight.takeItem(l).text(), 1)
     if l:
         msg = QMessageBox()
         msg.setWindowTitle("Ошибка")
