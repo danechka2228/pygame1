@@ -79,17 +79,6 @@ def addtask1():
     a.clear()
 
 
-def addtask2():
-    b = a.text().strip()
-    if not b:
-        err1("Введите название дела!")
-        return
-
-    listRight.addItem(b)
-    add_ele(b, 1)
-    a.clear()
-
-
 def clear_all_left():
     if listLeft.count() == 0:
         err1("Список дел пуст!")
@@ -212,7 +201,7 @@ add_label = QLabel('новое дело:')
 listLeft = QListWidget()
 listRight = QListWidget()
 add1 = QPushButton('Добавить в список дел')
-add2 = QPushButton('Добавить сразу в сделанное')
+
 
 v_line1 = QVBoxLayout()
 v_line2 = QVBoxLayout()
@@ -231,7 +220,7 @@ v_line1.addLayout(h_line3)
 v_line1.addWidget(add_label)
 v_line1.addWidget(a)
 h_line4.addWidget(add1)
-h_line4.addWidget(add2)
+
 v_line1.addLayout(h_line4)
 
 v_line2.addWidget(spisok1)
@@ -250,7 +239,6 @@ main_line.addLayout(v_line2)
 main_win.setLayout(main_line)
 
 add1.clicked.connect(addtask1)
-add2.clicked.connect(addtask2)
 button1.clicked.connect(clear_all_left)
 button2.clicked.connect(clear_all_right)
 button6.clicked.connect(dci)
@@ -261,4 +249,4 @@ button4.clicked.connect(move_to_left)
 create_db()
 main_win.show()
 app.exec_()
-
+#3676776677676767
