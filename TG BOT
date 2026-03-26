@@ -1,25 +1,55 @@
 import telebot
 from telebot import types
 import sqlite3
+import logging
 
 
 
-
-
+# Создание экземпляра бота
 bot = telebot.TeleBot('8639395319:AAFWp1gOKq4u2cLX_niE6HnegTbk8ckLr7w')
-
-#обработчик команды /start
-#@bot.message_handler(commands=['start'])
-#def start_command(message):
-    #try:
-        #пытаемся отправить приветственное сообщение пользлователю
-        #bot.send_message(message.chat.id, "Добро пожаловать!")
-    #except telebot.apihelper.ApiException as e:
-        #обрабатываем исключение если произошла ошибка при взаимодйествии с API TELEGRAM
+import logging
 
 
-#создаем клавиатуру с двумя кнопками в строке
-keyboard = types.ReplyKeyboardMarkupKeyboardMarkup(row_width=2, resize_keyboard=True)
+# Подключение к базе данных
+conn = sqlite3.connect('bot_database.db')
+cursor = conn.cursor()
+
+# Создание таблицы
+cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL,
+    age INTEGER
+)""")
+conn.commit()
+conn.close()
+
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Обработчик команды /start
+@bot.message_handler(commands=['start'])
+def start_command(message):
+    try:
+        # Логируем получение команды /start
+        logger.info("Получена команда /start от пользователя %s", message.chat.id)
+        # Пытаемся отправить приветственное сообщение пользователю
+        bot.send_message(message.chat.id, "Добро пожаловать!")
+    except telebot.apihelper.ApiException as e:
+        # Логируем ошибку при взаимодействии с API Telegram
+        logger.error("Ошибка при отправке сообщения: %s", e)
+        bot.send_message(message.chat.id, "Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже.")
+    except Exception as e:
+        # Логируем все остальные возможные ошибки
+        logger.exception("Неизвестная ошибка: %s", e)
+        bot.send_message(message.chat.id, "Произошла неизвестная ошибка. Пожалуйста, свяжитесь с поддержкой.")
+    else:
+        # Логируем успешную отправку сообщения
+        logger.info("Сообщение успешно отправлено пользователю %s", message.chat.id)
+    finally:
+        # Логируем завершение обработки команды /start
+        logger.info("Завершение обработки команды /start для пользователя %s", message.chat.id)
 
 #создаем кнопки с callback-данными
 button1 = types.KeyboardButton('Кнопка 1')
@@ -121,4 +151,98 @@ def handle_document(message):
 
 
 #запуск бота
+bot.polling()
+
+
+
+
+import telebot
+import sqlite3
+
+# Создание экземпляра бота
+bot = telebot.TeleBot('8710195789:AAE-zBbLCYf5nKkT-WnYZFsorDhK2IsGghl')
+
+# Подключение к базе данных
+def get_db_connection():
+    conn = sqlite3.connect('bot_database.db')
+    return conn
+
+# Команда для создания записи
+@bot.message_handler(commands=['create'])
+def create_user(message):
+    msg = bot.reply_to(message, "Введите имя пользователя и возраст через пробел (например, JohnDoe 30):")
+    bot.register_next_step_handler(msg, process_create_step)
+
+def process_create_step(message):
+    try:
+        username, age = message.text.split()
+        age = int(age)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, age) VALUES (?, ?)", (username, age))
+        conn.commit()
+        conn.close()
+        bot.reply_to(message, "Пользователь успешно создан!")
+    except Exception as e:
+        bot.reply_to(message, f"Произошла ошибка: {e}")
+
+# Команда для чтения записи
+@bot.message_handler(commands=['read'])
+def read_user(message):
+    msg = bot.reply_to(message, "Введите имя пользователя для поиска:")
+    bot.register_next_step_handler(msg, process_read_step)
+
+def process_read_step(message):
+    try:
+        username = message.text
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user = cursor.fetchone()
+        conn.close()
+        if user:
+            bot.reply_to(message, f"Пользователь: {user}")
+        else:
+            bot.reply_to(message, "Пользователь не найден.")
+    except Exception as e:
+        bot.reply_to(message, f"Произошла ошибка: {e}")
+
+# Команда для обновления записи
+@bot.message_handler(commands=['update'])
+def update_user(message):
+    msg = bot.reply_to(message, "Введите имя пользователя и новый возраст через пробел (например, JohnDoe 35):")
+    bot.register_next_step_handler(msg, process_update_step)
+
+def process_update_step(message):
+    try:
+        username, age = message.text.split()
+        age = int(age)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET age = ? WHERE username = ?", (age, username))
+        conn.commit()
+        conn.close()
+        bot.reply_to(message, "Пользователь успешно обновлен!")
+    except Exception as e:
+        bot.reply_to(message, f"Произошла ошибка: {e}")
+
+# Команда для удаления записи
+@bot.message_handler(commands=['delete'])
+def delete_user(message):
+    msg = bot.reply_to(message, "Введите имя пользователя для удаления:")
+    bot.register_next_step_handler(msg, process_delete_step)
+
+def process_delete_step(message):
+    try:
+        username = message.text
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE username = ?", (username,))
+        conn.commit()
+        conn.close()
+        bot.reply_to(message, "Пользователь успешно удален!")
+    except Exception as e:
+        bot.reply_to(message, f"Произошла ошибка: {e}")
+
+# Запуск бота
 bot.polling()
