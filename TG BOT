@@ -7,7 +7,7 @@ import logging
 
 # Создание экземпляра бота
 bot = telebot.TeleBot('8639395319:AAFWp1gOKq4u2cLX_niE6HnegTbk8ckLr7w')
-import logging
+
 
 
 # Подключение к базе данных
@@ -24,42 +24,43 @@ conn.commit()
 conn.close()
 
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 # Обработчик команды /start
 @bot.message_handler(commands=['start'])
 def start_command(message):
-    try:
-        # Логируем получение команды /start
-        logger.info("Получена команда /start от пользователя %s", message.chat.id)
-        # Пытаемся отправить приветственное сообщение пользователю
-        bot.send_message(message.chat.id, "Добро пожаловать!")
-    except telebot.apihelper.ApiException as e:
-        # Логируем ошибку при взаимодействии с API Telegram
-        logger.error("Ошибка при отправке сообщения: %s", e)
-        bot.send_message(message.chat.id, "Произошла ошибка при отправке сообщения. Пожалуйста, попробуйте позже.")
-    except Exception as e:
-        # Логируем все остальные возможные ошибки
-        logger.exception("Неизвестная ошибка: %s", e)
-        bot.send_message(message.chat.id, "Произошла неизвестная ошибка. Пожалуйста, свяжитесь с поддержкой.")
-    else:
-        # Логируем успешную отправку сообщения
-        logger.info("Сообщение успешно отправлено пользователю %s", message.chat.id)
-    finally:
-        # Логируем завершение обработки команды /start
-        logger.info("Завершение обработки команды /start для пользователя %s", message.chat.id)
+    bot.reply_to(message, 'Привет! я хочу в кс2')
 
-#создаем кнопки с callback-данными
-button1 = types.KeyboardButton('Кнопка 1')
-button2 = types.KeyboardButton('Кнопка 2')
+    #соpдаем клавиатуру с двумя кнопками в строке
+    keyboard = types.ReplyKeyboardMarkup(row_width=2)
 
-#добавляем кнопки на клавиатуру
-keyboard.add(button1,button2)
+    #создаем кнопки с каллбэк данными
+    button1 = types.InlineKeyboardButton('Кнопка 1', callback_data='data1')
+    button2 = types.InlineKeyboardButton('Кнопка 2', callback_data='data1')
+    #добавляем  кнопки на клаву
+    keyboard.add(button1,button2)
+    #отправляем сообщение с клавиатурой
+    bot.send_message(message.chat.id, "Выберите опцию:", reply_markup=keyboard)
 
-# отправляем сообщение  с клавиатурой
-bot.send_message(message.chat.id, "Выберите опцию:", reply_markup=keyboard)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def handle_query(call):
+    #проверяем каллбэк данные и отправляем ответ
+    if call.data == 'data1':
+        bot.send_message(call.message.chat.id, "вы нажали кнопку 1")
+    elif call.data == 'data2':
+        bot.send_message(call.message.chat.id, "Вы нажали кнопку 2")
+
+
+#обработчик текстовых сообщений
+@bot.message_handler(content_types=['text'])
+def handle_text(message):
+    #проверяем текст сообщения и отправляем ответ
+    if message.text == 'кнопка 1':
+        bot.send_message(message.chat.id, "Вы нажали кнопку 1")
+    elif message.text == 'кнопка 2':
+        bot.send_message(message.chat.id, "Вы нажали кнопку 2")
+
 
 #обработчик коллбек запрососв
 @bot.callback_query_handler(func=lambda call: True)
@@ -70,40 +71,12 @@ def handle_query(call):
     elif call.data == 'data2':
         bot.send_message(call.messsage.chat.id, "Вы нажали кнопку 2")
 
-#обработчик текстовых сообщений
-@bot.message_handler(content_types=['text'])
-def handle_text(message):
-    #проверяем текст сообщения и отправляем ответ
-    if message.text == 'Кнопка 1':
-        bot.send_message(messsage.chat.id, "Вы нажали кнопку 1")
-    elif message.text == 'Кнопка 2':
-        bot.send_message(messsage.chat.id, "Вы нажали кнопку 2")
-
-
-
-
-
-
-
-
-#создаем клавиатуру с двумя кнопками в строке
-keyboard = types.InlineKeyboardMarkup(row_width=2)
-
-#создаем кнопки с callback-данными
-button1 = types.InlineKeyboardButton('Кнопка 1', callback='data1')
-button2 = types.InlineKeyboardButton('Кнопка 2', callback='data2')
-
-#добавляем кнопки на клавиатуру
-keyboard.add(button1,button2)
-
-# отправляем сообщение  с клавиатурой
-bot.send_message(message.chat.id, "Выберите опцию:", reply_markup=keyboard)
-
 
 #обработчик команды /help
 @bot.message_handler(commands=['help', 'about'])
 def help_command(message):
         bot.reply_to(message, "Раздел помощи. Информация о боте")
+
 #Обработка текстовых сообщений
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -141,18 +114,8 @@ def handle_document(message):
 
     bot.reply_to(message, "Документ получен и сохранен!")
 
-
-
-
-
-
-
-
-
-
 #запуск бота
 bot.polling()
-
 
 
 
