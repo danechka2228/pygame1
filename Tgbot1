@@ -1,36 +1,64 @@
 import telebot
 import requests
+from deep_translator import GoogleTranslator
 
-# Вставьте ваши данные
-TG_TOKEN = 'ВАШ_ТОКЕН_ОТ_BOTFATHER'
-MOVIE_API_KEY = 'ВАШ_КЛЮЧ_OMDB'
+# Твои ключи
+TG_TOKEN = '8639395319:AAFWp1gOKq4u2cLX_niE6HnegTbk8ckLr7w'
+OMDB_API_KEY = '23211341'
 
 bot = telebot.TeleBot(TG_TOKEN)
 
 @bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "Напиши название фильма на английском (например, 'Matrix')")
+def start_command(message):
+    bot.reply_to(message, 'Привет! я могу найти фильмы, просто введи их название!')
 
-@bot.message_handler(func=lambda message: True)
-def search_movie(message):
-    movie_name = message.text
-    # Делаем запрос к базе OMDb
-    url = f"http://omdbapi.com{movie_name}&apikey={MOVIE_API_KEY}"
-    response = requests.get(url).json()
+# Функция для удобного перевода
+def translate_text(text, target_lang):
+    try:
+        return GoogleTranslator(source='auto', target=target_lang).translate(text)
+    except:
+        return text
 
-    if response.get('Response') == 'True':
-        title = response.get('Title')
-        year = response.get('Year')
-        rating = response.get('imdbRating')
-        imdb_id = response.get('imdbID')
-        link = f"https://imdb.com{imdb_id}/"
 
-        text = (f"🎬 *{title}* ({year})\n"
-                f"⭐️ Рейтинг: {rating}/10\n"
-                f"🔗 [Ссылка на IMDb]({link})")
-        
-        bot.send_message(message.chat.id, text, parse_mode='Markdown')
-    else:
-        bot.send_message(message.chat.id, "❌ Фильм не найден. Попробуй другое название.")
+@bot.message_handler(content_types=['text'])
+def get_text_messages(message):
+    movie_name_en = translate_text(message.text, 'en')
 
-bot.polling(none_stop=True)
+    url = "http://omdbapi.com"
+    query_params = {
+        't': movie_name_en,
+        'apikey': OMDB_API_KEY
+    }
+
+    try:
+        response = requests.get(url, params=query_params)
+        data = response.json()
+
+        if data.get('Response') == 'True':
+            title = data.get('Title')
+            year = data.get('Year')
+            rating = data.get('imdbRating')
+            plot_en = data.get('Plot')
+            poster = data.get('Poster')
+
+
+            plot_ru = translate_text(plot_en, 'ru')
+
+            answer = (f"*{title}* ({year})\n"
+                      f"Рейтинг IMDb: {rating}\n\n"
+                      f"Описание: {plot_ru}")
+
+            if poster and poster != 'N/A':
+                bot.send_photo(message.chat.id, poster, caption=answer, parse_mode='Markdown')
+            else:
+                bot.send_message(message.chat.id, answer, parse_mode='Markdown')
+        else:
+            bot.send_message(message.chat.id, "Фильм не найден.")
+
+    except Exception as e:
+        print(f"Ошибка: {e}")
+        bot.send_message(message.chat.id, "Ошибка при поиске.")
+
+
+if __name__ == "__main__":
+    bot.polling(none_stop=True)
