@@ -1,64 +1,46 @@
-import telebot
-import requests
-from deep_translator import GoogleTranslator
+#импорт всех классов
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.core.window import Window
+#глобальные настройки
+Window.size = (250,200)
+Window.clearcolor = (100 / 255,176 / 235,3 / 205,1)
+Window.title = "Конвертер"
 
-# Твои ключи
-TG_TOKEN = '8639395319:AAFWp1gOKq4u2cLX_niE6HnegTbk8ckLr7w'
-OMDB_API_KEY = '23211341'
-
-bot = telebot.TeleBot(TG_TOKEN)
-
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    bot.reply_to(message, 'Привет! я могу найти фильмы, просто введи их название!')
-
-# Функция для удобного перевода
-def translate_text(text, target_lang):
-    try:
-        return GoogleTranslator(source='auto', target=target_lang).translate(text)
-    except:
-        return text
-
-
-@bot.message_handler(content_types=['text'])
-def get_text_messages(message):
-    movie_name_en = translate_text(message.text, 'en')
-
-    url = "http://omdbapi.com"
-    query_params = {
-        't': movie_name_en,
-        'apikey': OMDB_API_KEY
-    }
-
-    try:
-        response = requests.get(url, params=query_params)
-        data = response.json()
-
-        if data.get('Response') == 'True':
-            title = data.get('Title')
-            year = data.get('Year')
-            rating = data.get('imdbRating')
-            plot_en = data.get('Plot')
-            poster = data.get('Poster')
-
-
-            plot_ru = translate_text(plot_en, 'ru')
-
-            answer = (f"*{title}* ({year})\n"
-                      f"Рейтинг IMDb: {rating}\n\n"
-                      f"Описание: {plot_ru}")
-
-            if poster and poster != 'N/A':
-                bot.send_photo(message.chat.id, poster, caption=answer, parse_mode='Markdown')
-            else:
-                bot.send_message(message.chat.id, answer, parse_mode='Markdown')
+class MyApp(App):
+    #cоздание всех виджетов (обьектов)
+    def __init__(self):
+        super().__init__()
+        self.label = Label(text='Конвертер')
+        self.miles = Label(text='Мили')
+        self.metres = Label(text='Метры')
+        self.santimetres = Label(text='Сантиметры')
+        self.input_data = TextInput(hint_text='Введите значение (км)',multiline=False)
+        self.input_data.bind(text=self.on_text)# добавляем обработчик события
+    def on_text(self, *args):
+        data = self.input_data.text
+        if data.isnumeric():
+            self.miles.text='Мили:' + str(float(data) * 0.62)
+            self.metres.text='метры:' + str(float(data) * 1000)
+            self.santimetres.text='Сантиметры:' + str(float(data) * 100000)
         else:
-            bot.send_message(message.chat.id, "Фильм не найден.")
+            self.input_data.text=''
 
-    except Exception as e:
-        print(f"Ошибка: {e}")
-        bot.send_message(message.chat.id, "Ошибка при поиске.")
+# основной метод для пострения программы
+    def build(self):
+        #все обьекты будем помещать в один общий слой
+        box = BoxLayout(orientation='vertical')
+        box.add_widget(self.label)
+        box.add_widget(self.input_data)
+        box.add_widget(self.miles)
+        box.add_widget(self.metres)
+        box.add_widget(self.santimetres)
+        return box
 
-
+#Запуск проекта
+if __name__ == '__main__':
+    MyApp().run()
 if __name__ == "__main__":
     bot.polling(none_stop=True)
