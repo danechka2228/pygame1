@@ -1,0 +1,36 @@
+import telebot
+import requests
+
+# Вставьте ваши данные
+TG_TOKEN = 'ВАШ_ТОКЕН_ОТ_BOTFATHER'
+MOVIE_API_KEY = 'ВАШ_КЛЮЧ_OMDB'
+
+bot = telebot.TeleBot(TG_TOKEN)
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    bot.reply_to(message, "Напиши название фильма на английском (например, 'Matrix')")
+
+@bot.message_handler(func=lambda message: True)
+def search_movie(message):
+    movie_name = message.text
+    # Делаем запрос к базе OMDb
+    url = f"http://omdbapi.com{movie_name}&apikey={MOVIE_API_KEY}"
+    response = requests.get(url).json()
+
+    if response.get('Response') == 'True':
+        title = response.get('Title')
+        year = response.get('Year')
+        rating = response.get('imdbRating')
+        imdb_id = response.get('imdbID')
+        link = f"https://imdb.com{imdb_id}/"
+
+        text = (f"🎬 *{title}* ({year})\n"
+                f"⭐️ Рейтинг: {rating}/10\n"
+                f"🔗 [Ссылка на IMDb]({link})")
+        
+        bot.send_message(message.chat.id, text, parse_mode='Markdown')
+    else:
+        bot.send_message(message.chat.id, "❌ Фильм не найден. Попробуй другое название.")
+
+bot.polling(none_stop=True)
