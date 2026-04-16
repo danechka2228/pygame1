@@ -1,0 +1,57 @@
+from kivy.app import App #класс для создания приложения
+from kivy.uix.boxlayout import BoxLayout #класс для создагния линии
+from kivy.uix.button import Button#класс для создания кнопок
+from kivy.uix.image import Image# класс для отображения картинок
+from kivy.uix.screenmanager import ScreenManager, Screen# классы для  экранчиков
+
+
+
+class MenuScreen(Screen):  # создание класса для главного экрана с менюшкой
+    def __init__(self,**kw):
+        super(MenuScreen,self).__init__(**kw)
+        box = BoxLayout(orientation='horizontal')# создаем горизонталтную линию
+        box.add_widget(Button(text='кошки', on_press=lambda x: set_screen('left_screen')))#добавляем кнопку кошки на левый экранчик
+        box.add_widget(Button(text='собаки', on_press=lambda x: set_screen('right_screen')))#добавляем кнопку собаки на правый экранчик
+        self.add_widget(box)# загружаем это все на экран
+
+class Left(Screen):  #левый экарн с кошками
+    def __init__(self,**kw):
+        super(Left, self).__init__(**kw)
+        self.box = BoxLayout(orientation='horizontal')## создаем линию
+        back_button = Button(text='Назад в меню', on_press=lambda x: set_screen('menu'))##кнопка для возврата обратно на главный экран
+        self.image = Image(source='okak.jpg')#загружаем картинку
+        self.box.add_widget(back_button)#добавляем кнопки
+        self.box.add_widget(self.image)#добавляем картинку
+        self.add_widget(self.box)# выгружаем на экран левый
+
+
+
+
+class Right(Screen):  #создаем класс для правого экрана с собэчкой
+    def __init__(self,**kw):
+        super(Right, self).__init__(**kw)
+        self.box = BoxLayout(orientation='horizontal')# создаем линию
+        back_button = Button(text='Назад в меню', on_press=lambda x: set_screen('menu'))#кнопка для возврата обратно на главный экран
+        self.image = Image(source='sobachka.jpg')# загружаем собачку картинку лооол эщкере
+        self.box.add_widget(self.image)#добавляем кнопки
+        self.box.add_widget(back_button)#добавляем кнопки
+        self.add_widget(self.box)# выгружаем на экран правый
+
+#функция для смены экрана
+def set_screen(name_screen):
+    sm.current = name_screen
+
+#менеджер экранов который их переключает между собой
+sm = ScreenManager()
+#называет все экраны и дает им название
+sm.add_widget(MenuScreen(name='menu'))
+sm.add_widget(Left(name='left_screen'))
+sm.add_widget(Right(name='right_screen'))
+
+# класс приложения
+class MyApp(App):
+    def build(self): # build возвращает виджет
+        return sm
+#запуск программы
+if __name__ == '__main__':
+    MyApp().run()
