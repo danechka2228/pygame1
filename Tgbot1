@@ -44,3 +44,57 @@ if __name__ == '__main__':
     MyApp().run()
 if __name__ == "__main__":
     bot.polling(none_stop=True)
+
+
+
+
+
+from kivy.app import App #класс для создания приложения
+from kivy.uix.boxlayout import BoxLayout #класс для создагния линии
+from kivy.uix.button import Button#класс для создания кнопок
+from kivy.uix.image import Image# класс для отображения картинок
+from kivy.uix.screenmanager import ScreenManager, Screen# классы для  экранчиков
+from pytz.reference import Central
+
+
+#class MenuScreen(Screen):  # создание класса для главного экрана с менюшкой
+    #######elf.add_widget(box)# загружаем эти экраны на экран
+
+class Menu1(Screen):
+    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
+        super(Menu1, self).__init__(**kw)# наследуются свойства из класса скрин
+        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
+        self.image = Image(source='AtonOgur.jpg')#создаем свойство с картинкой
+        self.box.add_widget(self.image)#загружаем картинку кота
+        self.add_widget(self.box)# выгружаем это все на левый экран
+
+class Menu2(Screen):
+    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
+        super(Menu2, self).__init__(**kw)# наследуются свойства из класса скрин
+        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
+        self.image = Image(source='rkn.jpg')#создаем свойство с картинкой
+        self.box.add_widget(self.image)#загружаем картинку кота
+        self.add_widget(self.box)# выгружаем это все на левый экран
+
+
+class Menu3(Screen):
+    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
+        super(Menu3, self).__init__(**kw)# наследуются свойства из класса скрин
+        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
+        self.image = Image(source='traktor.jpg')#создаем свойство с картинкой
+        self.box.add_widget(self.image)#загружаем картинку кота
+        self.add_widget(self.box)# выгружаем это все на левый экран
+
+
+sm = ScreenManager()
+#называет все экраны и дает им название
+sm.add_widget(Menu1(name='first_screen'))
+sm.add_widget(Menu2(name='third_screen'))
+sm.add_widget(Menu3(name='second_screen'))
+# класс приложения
+class MyApp(App):
+    def build(self): # build возвращает виджет это метод
+        return sm
+
+if __name__ == '__main__':
+    MyApp().run()
