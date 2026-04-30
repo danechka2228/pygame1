@@ -49,52 +49,65 @@ if __name__ == "__main__":
 
 
 
-from kivy.app import App #класс для создания приложения
-from kivy.uix.boxlayout import BoxLayout #класс для создагния линии
-from kivy.uix.button import Button#класс для создания кнопок
-from kivy.uix.image import Image# класс для отображения картинок
-from kivy.uix.screenmanager import ScreenManager, Screen# классы для  экранчиков
-from pytz.reference import Central
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.image import Image
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.label import Label
+
+class Menu1(BoxLayout):
+    def __init__(self, **kw):
+        super(Menu1, self).__init__(**kw)
+        box = BoxLayout(orientation='horizontal')
+        box.add_widget(Button(text='', on_press=lambda x: set_screen('menu1'), background_normal='AtonOgur1.jpg'))
+        box.add_widget(Label(text="Антоша ты такой хароший"))
+        self.add_widget(box)
+
+class Menu2(BoxLayout):
+    def __init__(self, **kw):
+        super(Menu2, self).__init__(**kw)
+        box = BoxLayout(orientation='horizontal')
+        box.add_widget(Button(text='', on_press=lambda x: set_screen('menu2'), background_normal='rkn.jpg'))
+        box.add_widget(Label(text="Какашка"))
+        self.add_widget(box)
 
 
-#class MenuScreen(Screen):  # создание класса для главного экрана с менюшкой
-    #######elf.add_widget(box)# загружаем эти экраны на экран
-
-class Menu1(Screen):
-    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
-        super(Menu1, self).__init__(**kw)# наследуются свойства из класса скрин
-        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
-        self.image = Image(source='AtonOgur.jpg')#создаем свойство с картинкой
-        self.box.add_widget(self.image)#загружаем картинку кота
-        self.add_widget(self.box)# выгружаем это все на левый экран
-
-class Menu2(Screen):
-    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
-        super(Menu2, self).__init__(**kw)# наследуются свойства из класса скрин
-        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
-        self.image = Image(source='rkn.jpg')#создаем свойство с картинкой
-        self.box.add_widget(self.image)#загружаем картинку кота
-        self.add_widget(self.box)# выгружаем это все на левый экран
 
 
-class Menu3(Screen):
-    def __init__(self,**kw): # создаем конструктор там ,создаются свойства
-        super(Menu3, self).__init__(**kw)# наследуются свойства из класса скрин
-        self.box = BoxLayout(orientation='horizontal') # создаем горизонтальную линию ,self.box свойство
-        self.image = Image(source='traktor.jpg')#создаем свойство с картинкой
-        self.box.add_widget(self.image)#загружаем картинку кота
-        self.add_widget(self.box)# выгружаем это все на левый экран
+
+class Menu3(BoxLayout):
+    def __init__(self, **kw):
+        super(Menu3, self).__init__(**kw)
+        box = BoxLayout(orientation='horizontal')
+        box.add_widget(Button(text='', on_press=lambda x: set_screen('menu3'), background_normal='traktor.jpg'))
+        box.add_widget(Label(text="Антоша в эльдорадо"))
+        self.add_widget(box)
+
+def set_screen(name_screen):
+    sm.current = name_screen
 
 
 sm = ScreenManager()
-#называет все экраны и дает им название
-sm.add_widget(Menu1(name='first_screen'))
-sm.add_widget(Menu2(name='third_screen'))
-sm.add_widget(Menu3(name='second_screen'))
-# класс приложения
+sm.add_widget(Menu1(name='menu1'))
+sm.add_widget(Menu2(name='menu2'))
+sm.add_widget(Menu3(name='menu3'))
+
+
+
 class MyApp(App):
-    def build(self): # build возвращает виджет это метод
-        return sm
+    def build(self):
+
+        main_layout = BoxLayout(orientation='vertical')
+        sc1 = Menu1()
+        sc2 = Menu2()
+        sc3 = Menu3()
+        main_layout.add_widget(sc1)
+        main_layout.add_widget(sc2)
+        main_layout.add_widget(sc3)
+
+        return main_layout
 
 if __name__ == '__main__':
     MyApp().run()
+
