@@ -66,46 +66,174 @@ if __name__ == '__main__':
 
 
 
-
+import sqlite3
 from kivy.app import App
+from kivy.lang import Builder
+from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
-from kivy.uix.image import Image
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.properties import BooleanProperty, StringProperty, NumericProperty
+from datetime import datetime
 
-class Menu1(BoxLayout):
-    def __init__(self, **kw):
-        super(Menu1, self).__init__(**kw)
-        box = BoxLayout(orientation='horizontal')
-        box.add_widget(Button(text='', background_normal='AtonOgur1.jpg'))
-        box.add_widget(Label(text="Антоша ты такой хароший"))
-        self.add_widget(box)
+def db_query(sql, params=()):
+    with sqlite3.connect('users.db') as conn:
+        return conn.execute(sql, params).fetchall()
 
-class Menu2(BoxLayout):
-    def __init__(self, **kw):
-        super(Menu2, self).__init__(**kw)
-        box = BoxLayout(orientation='horizontal')
-        box.add_widget(Button(text='', background_normal='rkn.jpg'))
-        box.add_widget(Label(text="Какашка"))
-        self.add_widget(box)
+def pop(title, text):
+    btn = Button(text="OK", size_hint_y=0.4)
+    content = BoxLayout(orientation='vertical', padding=10)
+    content.add_widget(Label(text=text))
+    content.add_widget(btn)
+    p = Popup(title=title, content=content, size_hint=(0.7, 0.3))
+    btn.bind(on_release=p.dismiss)
+    p.open()
 
-class Menu3(BoxLayout):
-    def __init__(self, **kw):
-        super(Menu3, self).__init__(**kw)
-        box = BoxLayout(orientation='horizontal')
-        box.add_widget(Button(text='', background_normal='traktor.jpg'))
-        box.add_widget(Label(text="Антоша в эльдорадо"))
-        self.add_widget(box)
+class NoteItem(BoxLayout):
+    selected = BooleanProperty(False)
+    note_id = NumericProperty(0)
+    note_text = StringProperty("")
+    note_date = StringProperty("")
 
-class MyApp(App):
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            for c in self.parent.children:
+                if isinstance(c, NoteItem): c.selected = False
+            self.selected = True
+            return True
+        return super().on_touch_down(touch)
+
+class LoginScreen(Screen):
+    def auth(self, l, p, reg=False):
+        if not l or not p: return pop("Ошибка", "Сначала введите текст")
+        if reg:
+            try:
+                db_query("INSERT INTO users VALUES (?,?)", (l, p))
+                pop("Успех", "Пользователь зарегистрирован")
+            except: pop("Ошибка", "Такой пользователь уже существует")
+        elif db_query("SELECT * FROM users WHERE username=? AND password=?", (l, p)):
+            self.manager.current = 'menu'
+            self.manager.get_screen('menu').load()
+        else: pop("Ошибка", "Неверные данные")
+
+class Menu1(Screen):
+    def load(self):
+        self.ids.list.clear_widgets()
+        for n in db_query("SELECT id, text, date FROM notes ORDER BY id DESC"):
+            self.ids.list.add_widget(NoteItem(note_id=n[0], note_text=str(n[1]), note_date=str(n[2])))
+
+    def add(self, text):
+        if not text: return pop("Ошибка", "Сперва введите текст")
+        db_query("INSERT INTO notes (text, date) VALUES (?,?)", (text, datetime.now().strftime("%H:%M")))
+        self.ids.inp.text = ""
+        self.load()
+
+    def delete(self, all=False):
+        if not self.ids.list.children:
+            return pop("Ошибка", "Заметок нету")
+
+        if all:
+            db_query("DELETE FROM notes")
+            pop("Успех", "Все удалено")
+        else:
+            found = False
+            for c in self.ids.list.children:
+                if getattr(c, 'selected', False):
+                    db_query("DELETE FROM notes WHERE id=?", (c.note_id,))
+                    found = True
+                    break
+            if not found:
+                return pop("Ошибка", "Сперва выберите заметку")
+        self.load()
+
+class AuthApp(App):
     def build(self):
-        main_layout = BoxLayout(orientation='vertical')
-        main_layout.add_widget(Menu1())
-        main_layout.add_widget(Menu2())
-        main_layout.add_widget(Menu3())
-        return main_layout
+        db_query("CREATE TABLE IF NOT EXISTS users (username TEXT UNIQUE, password TEXT)")
+        db_query("CREATE TABLE IF NOT EXISTS notes (id INTEGER PRIMARY KEY, text TEXT, date TEXT)")
+        return Builder.load_string('''
+ScreenManager:
+    LoginScreen:
+    Menu1:
+
+<NoteItem>:
+    size_hint_y: None
+    height: 40
+    canvas.before:
+        Color:
+            rgba: (.2,.2,.2,1) if not self.selected else (.2,.5,.8,1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        text: root.note_text
+        halign: 'left'
+        valign: 'middle'
+        text_size: self.size
+        padding_x: 10
+    Label:
+        text: root.note_date
+        size_hint_x: .3
+
+<LoginScreen>:
+    name: 'login'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 50
+        spacing: 10
+        Label:
+            text: "ВХОД"
+            font_size: 24
+        TextInput: 
+            id: l
+            hint_text: "Логин"
+            multiline: False
+        TextInput: 
+            id: p
+            hint_text: "Пароль"
+            password: True
+            multiline: False
+        Button:
+            text: "Войти"
+            on_press: root.auth(l.text, p.text)
+        Button:
+            text: "Регистрация"
+            on_press: root.auth(l.text, p.text, reg=True)
+
+<Menu1>:
+    name: 'menu'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 5
+        Label:
+            text: "ЗАМЕТКИ"
+            size_hint_y: .1
+        ScrollView:
+            BoxLayout:
+                id: list
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 2
+        BoxLayout:
+            size_hint_y: .1
+            spacing: 5
+            Button:
+                text: "Удалить"
+                on_press: root.delete()
+            Button:
+                text: "Удалить все"
+                on_press: root.delete(all=True)
+        TextInput:
+            id: inp
+            hint_text: "Текст..."
+            size_hint_y: .1
+        Button:
+            text: "Добавить"
+            size_hint_y: .1
+            on_press: root.add(inp.text)
+''')
 
 if __name__ == '__main__':
-    MyApp().run()
-
+    AuthApp().run()
